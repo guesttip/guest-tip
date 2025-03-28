@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head><meta charset="UTF-8"><title>Završna narudžba</title></head>
+<body>
+  <button onclick="history.back()">⬅ Natrag</button>
+  <h2>Unesi način plaćanja</h2>
+  <form id="paymentForm">
+    <input type="number" id="orderId" placeholder="ID narudžbe" required /><br>
+    <input type="text" id="method" placeholder="Revolut / PayPal / Kartica" required /><br>
+    <input type="number" id="price" placeholder="Cijena (€)" step="0.01" required />
+    <button type="submit">Potvrdi</button>
+  </form>
+  <p id="msg"></p>
+  <script>
+    document.getElementById('paymentForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const id = document.getElementById('orderId').value;
+      const method = document.getElementById('method').value;
+      const price = document.getElementById('price').value;
+      const res = await fetch('https://hih-a2fw.onrender.com/orders/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price, payment_method: method })
+      });
+      const json = await res.json();
+      document.getElementById('msg').innerText = json.message || 'Spremljeno!';
+    });
+  </script>
+</body>
+</html>

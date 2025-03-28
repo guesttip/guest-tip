@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - GuestTip</title>
+  <style>
+    body { font-family: Arial; background: #f8f9fa; padding: 2rem; }
+    .container { max-width: 600px; margin: auto; }
+    .waiter { background: #fff; padding: 10px; margin: 10px 0; border-radius: 5px; box-shadow: 0 0 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; }
+    .btn-danger { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    .btn-reset, .btn-menu { margin-top: 10px; background: black; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; width: 100%; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Admin Panel - GuestTip</h2>
+    <div id="waitersList">Učitavanje konobara...</div>
+    <button class="btn-reset" onclick="resetWaiters()">Resetiraj sve</button>
+    <button class="btn-menu" onclick="window.location.href='admin_menu.html'">Uredi Meni</button>
+  </div>
+
+  <script>
+    async function loadWaiters() {
+      const res = await fetch('https://hih-a2fw.onrender.com/waiters');
+      const data = await res.json();
+      const list = document.getElementById('waitersList');
+      list.innerHTML = '';
+      if (!data.length) {
+        list.innerHTML = '<p>Nema registriranih konobara.</p>';
+        return;
+      }
+      data.forEach((w, i) => {
+        const el = document.createElement('div');
+        el.className = 'waiter';
+        el.innerHTML = `
+          <span><strong>${w.name}</strong></span>
+          <button class="btn-danger" onclick="deleteWaiter(${i})">Obriši</button>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    async function deleteWaiter(index) {
+      const res = await fetch('https://hih-a2fw.onrender.com/waiters');
+      let data = await res.json();
+      data.splice(index, 1);
+      await fetch('https://hih-a2fw.onrender.com/overwrite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      loadWaiters();
+    }
+
+    async function resetWaiters() {
+      if (confirm('Jesi siguran da želiš obrisati sve konobare?')) {
+        await fetch('https://hih-a2fw.onrender.com/reset', { method: 'POST' });
+        alert('Svi konobari su obrisani.');
+        loadWaiters();
+      }
+    }
+
+    loadWaiters();
+  </script>
+</body>
+</html>

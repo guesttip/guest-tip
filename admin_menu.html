@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Meni - Dodavanje jela sa slikom</title>
+  <style>
+    body { font-family: Arial; background: #f8f9fa; padding: 2rem; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 8px; }
+    input, button { width: 100%; padding: 10px; margin-top: 10px; border-radius: 5px; }
+    button { background: #007bff; color: white; border: none; cursor: pointer; }
+    img { max-width: 100%; height: auto; margin-top: 10px; border-radius: 5px; }
+    .menu-item { border: 1px solid #ccc; padding: 10px; margin-top: 10px; border-radius: 6px; background: #f1f1f1; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Dodaj jelo u meni</h2>
+    <input type="text" id="dishName" placeholder="Naziv jela" required />
+    <input type="url" id="dishImage" placeholder="URL slike" required />
+    <button onclick="addDish()">Dodaj</button>
+    <p id="msg"></p>
+
+    <h3>Trenutni meni</h3>
+    <div id="menuList">Učitavanje menija...</div>
+  </div>
+
+  <script>
+    let menu = [];
+
+    async function loadMenu() {
+      const res = await fetch('https://hih-a2fw.onrender.com/menu');
+      try {
+        menu = await res.json();
+      } catch {
+        menu = [];
+      }
+      showMenu();
+    }
+
+    function showMenu() {
+      const box = document.getElementById('menuList');
+      box.innerHTML = '';
+      menu.forEach((item, i) => {
+        const div = document.createElement('div');
+        div.className = 'menu-item';
+        div.innerHTML = `
+          <strong>${item.name}</strong><br>
+          <img src="${item.image}" alt="${item.name}"><br>
+          <button onclick="removeDish(${i})">Obriši</button>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    async function addDish() {
+      const name = document.getElementById('dishName').value.trim();
+      const image = document.getElementById('dishImage').value.trim();
+      if (!name || !image) return alert('Molimo unesite sve podatke.');
+
+      menu.push({ name, image });
+
+      const res = await fetch('https://hih-a2fw.onrender.com/menu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(menu)
+      });
+
+      const result = await res.json();
+      document.getElementById('msg').innerText = result.message || 'Dodano!';
+      document.getElementById('dishName').value = '';
+      document.getElementById('dishImage').value = '';
+      showMenu();
+    }
+
+    async function removeDish(index) {
+      menu.splice(index, 1);
+      await fetch('https://hih-a2fw.onrender.com/menu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(menu)
+      });
+      showMenu();
+    }
+
+    loadMenu();
+  </script>
+</body>
+</html>

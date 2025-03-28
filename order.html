@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head><meta charset="UTF-8"><title>Naruči</title></head>
+<body>
+  <button onclick="history.back()">⬅ Natrag</button>
+  <h2>Odaberi jelo</h2>
+  <form id="orderForm">
+    <input type="text" id="item" placeholder="Upiši jelo" required />
+    <button type="submit">Naruči</button>
+  </form>
+  <script>
+    document.getElementById('orderForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const item = document.getElementById('item').value;
+      await fetch('https://hih-a2fw.onrender.com/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ item })
+      });
+      window.location.href = 'finalized_order.html';
+    });
+  </script>
+</body>
+</html>

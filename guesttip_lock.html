@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <title>GuestTip Pristup</title>
+  <style>
+    body { font-family: Arial; background: #f7f7f7; padding: 2rem; text-align: center; }
+    input, button { padding: 10px; margin-top: 10px; width: 200px; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <h2>Unesite mjesečnu lozinku za pristup GuestTip</h2>
+  <input type="text" id="code" placeholder="Mjesečni kod" />
+  <br>
+  <button onclick="checkCode()">Pristupi</button>
+  <p id="error" class="error"></p>
+
+  <script>
+    const correctCode = generateMonthlyCode();
+
+    function generateMonthlyCode() {
+      const now = new Date();
+      const month = now.getMonth() + 1;
+      const year = now.getFullYear() % 100;
+      return 'GT' + String(month).padStart(2, '0') + year;
+    }
+
+    function checkCode() {
+      const entered = document.getElementById('code').value.trim().toUpperCase();
+      if (entered === correctCode) {
+        localStorage.setItem("guesttip_access", correctCode);
+        window.location.href = "guesttip_latest.html";
+      } else {
+        document.getElementById("error").innerText = "Pogrešan kod! Pokušajte ponovo.";
+      }
+    }
+
+    // Automatski preusmjeri ako je već uneseno
+    window.onload = function() {
+      if (localStorage.getItem("guesttip_access") === correctCode) {
+        window.location.href = "guesttip_latest.html";
+      }
+    };
+  </script>
+</body>
+</html>

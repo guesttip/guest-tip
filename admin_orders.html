@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head><meta charset="UTF-8"><title>Admin Narudžbe</title></head>
+<body>
+  <button onclick="history.back()">⬅ Natrag</button>
+  <h2>Narudžbe u zadnja 2 sata</h2>
+  <div id="orders">Učitavanje...</div>
+  <script>
+    async function loadOrders() {
+      const res = await fetch('https://hih-a2fw.onrender.com/orders');
+      const data = await res.json();
+      const box = document.getElementById('orders');
+      box.innerHTML = '';
+      data.forEach(order => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <strong>ID: ${order.id}</strong><br>
+          Jelo: ${order.item}<br>
+          Vrijeme: ${order.timestamp}<br>
+          Cijena: ${order.price || 'N/A'}<br>
+          Plaćanje: ${order.payment_method || '-'}<br>
+          <input type="number" id="price${order.id}" placeholder="€" step="0.01">
+          <input type="text" id="method${order.id}" placeholder="Metoda">
+          <button onclick="update(${order.id})">Spremi</button>
+          <hr>
+        `;
+        box.appendChild(div);
+      });
+    }
+
+    async function update(id) {
+      const price = document.getElementById('price' + id).value;
+      const method = document.getElementById('method' + id).value;
+      await fetch('https://hih-a2fw.onrender.com/orders/' + id, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ price, payment_method: method })
+      });
+      loadOrders();
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <title>GuestTip</title>
+  <style>
+    body { background: #001F3F; color: white; text-align: center; font-family: Arial; padding: 2rem; }
+    .button { background: gold; color: #001F3F; padding: 10px 20px; margin: 5px; border: none; border-radius: 6px; cursor: pointer; }
+    input { padding: 10px; margin-top: 20px; border-radius: 5px; width: 80%; }
+  </style>
+</head>
+<body>
+  <h1>GuestTip</h1>
+  <p>Ostavi recenziju i napojnicu</p>
+  <button class="button" onclick="window.open('https://www.google.com/search?sca_esv=218665eea446f0ac&rlz=1C1GCEB_enHR1154HR1154&sxsrf=AHTn8zouZjaX1SV0FJ05Akrj7C4tx_aJrA:1743108733766&si=APYL9bvoDGWmsM6h2lfKzIb8LfQg_oNQyUOQgna9TyfQHAoqUiviru0Uibg9JN0d841BarNpeg_V_VlDx2LsG1M7Qc_VvUofINZwqQxPvQY7Y6bcoUJwAUNlVmCVetzGY9vMUmyScwJ-9RAdq_KmwynNXGr5SX3FIw%3D%3D&q=Restaurant+La+Fontana+Medulin+Recenzije&sa=X&ved=2ahUKEwjm6oWHkquMAxXcSvEDHbgFOOYQ0bkNegQIOxAE&biw=1536&bih=695&dpr=1.25', '_blank')">Google Recenzija</button>
+
+  <input type="text" id="search" placeholder="Pretraži konobara...">
+  <div id="waiters"></div>
+
+  <br><button class="button" onclick="window.location.href='order.html'">Naruči</button>
+
+  <script>
+    let waiters = [];
+
+    async function load() {
+      const res = await fetch('https://hih-a2fw.onrender.com/waiters');
+      waiters = await res.json();
+      show(waiters);
+    }
+
+    function show(list) {
+      const box = document.getElementById('waiters');
+      box.innerHTML = '';
+      list.forEach(w => {
+        const btn = document.createElement('button');
+        btn.className = 'button';
+        btn.textContent = w.name;
+        btn.onclick = () => window.open(w.link, '_blank');
+        box.appendChild(btn);
+      });
+    }
+
+    document.getElementById('search').addEventListener('input', e => {
+      const term = e.target.value.toLowerCase();
+      const filtered = waiters.filter(w => w.name.toLowerCase().includes(term));
+      show(filtered);
+    });
+
+    load();
+  </script>
+</body>
+</html>
